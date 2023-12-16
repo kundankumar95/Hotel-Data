@@ -1,0 +1,1038 @@
+# Budget = 10000
+# person = 2 
+# room = 1
+#days = 3
+# location = Kolkata to lucknow 
+# hotel lagbe
+# ar expenses er input nebe
+
+
+ 
+
+############################################################################################################################
+#This part of code finds out the distance between two place
+ 
+
+# Replace these with the actual locations you want to find the distance between.
+ 
+
+# Initialize the geolocator
+ 
+
+# Get the coordinates of the locations
+ 
+    # Calculate the distance
+ 
+   # Print the distance
+ 
+
+####################################################################################################################
+ 
+# room = int(input("How many rooms dou want?"))
+ 
+# destination_location = input("Enter your travel destination: ")
+# travel_month = input("Enter the month you'll be travelling (e.g., December): ")
+# current_location = input("Enter your current location state: ")
+ 
+# hotel_type = input("Enter the hotel type (3star, 4star, 5star, normal): ").lower()
+ 
+
+
+
+
+###################################################################################################################
+ 
+
+#UP-DOWN TRAIN JOURNEY COST APPROX.
+#case1
+ 
+
+#UP-DOWN TRAIN JOURNEY COST APPROX.
+#case2
+ 
+
+#UP-DOWN TRAIN JOURNEY COST APPROX.
+#case
+ 
+
+print("The remaining money after expenses = " + str(remaining_money))
+print("The up-down in train cost ="+ str(total_updown_train))
+print("The up-down in flight cost ="+ str(total_updown_flight ))
+print("The up-down in train+flight cost ="+ str(total_cost_of_uptrain_downflight))
+print("waiting...fetching result")
+ 
+# Use the function to calculate rest_amount based on the case_value
+ 
+
+print("The remaining money after expenses = " + str(remaining_money))
+print("The up-down in train cost ="+ str(total_updown_train))
+print("The up-down in flight cost ="+ str(total_updown_flight ))
+print("The up-down in train+flight cost ="+ str(total_cost_of_uptrain_downflight))
+print("waiting...fetching result")
+ 
+
+print("waiting...fetching result")
+def switch_case(case_value):
+    if case_value == 1:
+        rest_amount = remaining_money - total_cost_of_train_tciket
+    elif case_value == 2:
+        if remaining_money <= total_cost_of_flight_tciket:
+            print("You cant afford flight")
+            switch_case(3)
+        else:
+            rest_amount = remaining_money - total_cost_of_flight_tciket
+    else:
+        if remaining_money <= total_cost_of_uptrain_downflight:
+            print("You cant afford up by flight and down by train or vice versa")
+            switch_case(1)
+        else:
+            rest_amount = remaining_money - total_cost_of_uptrain_downflight
+
+price_per_day = rest_amount / days
+print_hotels_below_price_and_city(destination_location, price_per_day)
+ 
+
+if(remaining_money <= total_updown_train):
+    print("You cant afford up down in Train")
+else:
+    print("You can afford up down in Train")
+    
+        
+
+if(remaining_money <= total_cost_of_uptrain_downflight):
+    print("You cant afford up in Train and down in flight or vice versa")
+else:
+    print("You can afford up in Train and down in flight or vice versa")
+
+
+if(remaining_money <= total_updown_flight):
+    print("You cant afford up down flight ") 
+else:
+    print("You can afford up down flight ")
+ 
+
+print_hotels_below_price_and_city(destination_location,price)
+ 
+price = remaining_money / days
+ 
+from dataCollection import print_hotels_below_price_and_city
+ 
+
+
+# ... (rest of the code)
+ 
+
+# Get user input for city name and the maximum price of the room
+ 
+# app.py
+
+from flask import Flask, render_template, request, jsonify
+from dataCollection import extract_city, print_hotels_below_price_and_city
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/process', methods=['POST'])
+def process():
+    try:
+        if request.method == 'POST':
+            city = request.form.get('city')
+            max_price = int(request.form.get('max_price'))
+
+            result = print_hotels_below_price_and_city(city, max_price)
+
+            return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": f"An unexpected error occurred: {e}"}), 500
+
+    return jsonify({"error": "Method not allowed"}), 405
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+ 
+# app.py
+
+from flask import Flask, render_template, request, jsonify
+from dataCollection import extract_city, print_hotels_below_price_and_city
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/process', methods=['POST'])
+def process():
+    try:
+        city = request.form.get('city')
+        max_price = int(request.form.get('max_price'))
+
+        result = print_hotels_below_price_and_city(city, max_price)
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": f"An unexpected error occurred: {e}"}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+ 
+
+def extract_city(location):
+    if isinstance(location, dict) and "city" in location:
+        return location["city"]
+    elif isinstance(location, str):
+        return location
+    return ""
+
+ 
+import json
+
+def extract_city(location):
+    if isinstance(location, dict) and "city" in location:
+        return location["city"]
+    elif isinstance(location, str):
+        return location
+    return ""
+
+def print_hotels_below_price_and_city(city, max_price):
+    try:
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        processed_hotels = set()
+
+        for document in data:
+            room_data = document.get("Room", [])
+            document_city = extract_city(document.get("Location", ""))
+            
+            if document_city.lower() == city.lower() and any(int(room.get("price", 0)) <= max_price for room in room_data):
+                hotel_name = document.get("name")
+                if hotel_name not in processed_hotels:
+                    processed_hotels.add(hotel_name)
+
+                    print("Hotel Name:", hotel_name)
+                    for room in room_data:
+                        room_price = int(room.get("price", 0))
+                        if room_price <= max_price:
+                            print("Room Type:", room["type"])
+                            print("Availability:", room["availability"])
+                            print("Price:", room_price)
+                    print("Location:", document_city)
+                    print()
+
+        if not processed_hotels:
+            print("No hotels found matching the criteria.")
+
+    except FileNotFoundError:
+        print("Error: JSON file not found.")
+
+    except ValueError as ve:
+        print(f"Invalid input. Error: {ve}")
+
+# Get user input for city name and the maximum price of the room
+try:
+    user_input_city = input("Enter the city name: ")
+    user_input_max_price = int(input("Enter the maximum price of the room: "))
+    print_hotels_below_price_and_city(user_input_city, user_input_max_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+ 
+
+            # Check if the city matches and any room has a price below or equal to the user input
+ 
+#any(int(room.get("price", 0)) <= max_price for room in room_data)
+ 
+C:\Users\Kundan\Downloads\New folder (2)\data.json
+ 
+import json
+
+def extract_city(location):
+    if isinstance(location, dict) and "city" in location:
+        return location["city"]
+    elif isinstance(location, str):
+        return location
+    return ""
+
+def print_hotels_below_price_and_city(city, max_price):
+    try:
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        processed_hotels = set()
+
+        for document in data:
+            room_data = document.get("Room", [])
+            document_city = extract_city(document.get("Location", ""))
+            
+            # Check if the city matches and any room has a price below or equal to the user input
+            if document_city.lower() == city.lower() and any(int(room.get("price", 0)) <= max_price for room in room_data):
+                hotel_name = document.get("name")
+                if hotel_name not in processed_hotels:
+                    processed_hotels.add(hotel_name)
+
+                    print("Hotel Name:", hotel_name)
+                    for room in room_data:
+                        room_price = int(room.get("price", 0))
+                        if room_price <= max_price:
+                            print("Room Type:", room["type"])
+                            print("Availability:", room["availability"])
+                            print("Price:", room_price)
+                    print("Location:", document_city)
+                    print()
+
+    except FileNotFoundError:
+        print("Error: JSON file not found.")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the maximum room price.")
+
+# Get user input for city name and the maximum price of the room
+try:
+    user_input_city = input("Enter the city name: ")
+    user_input_max_price = int(input("Enter the maximum price of the room: "))
+    print_hotels_below_price_and_city(user_input_city, user_input_max_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+
+ 
+import json
+
+def extract_city(location):
+    if isinstance(location, dict) and "city" in location:
+        return location["city"]
+    elif isinstance(location, str):
+        return location
+    return ""
+
+def print_hotels_below_price_and_city(city, max_price):
+    try:
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        processed_hotels = set()
+
+        for document in data:
+            room_data = document.get("Room", [])
+            document_city = extract_city(document.get("Location", ""))
+            
+            # Check if the city matches and any room has a price below or equal to the user input
+            if document_city.lower() == city.lower() and any(int(room.get("price", 0)) <= max_price for room in room_data):
+                hotel_name = document.get("name")
+                if hotel_name not in processed_hotels:
+                    processed_hotels.add(hotel_name)
+
+                    print("Hotel Name:", hotel_name)
+                    for room in room_data:
+                        if int(room.get("price", 0)) <= max_price:
+                            print("Room Type:", room["type"])
+                            print("Availability:", room["availability"])
+                            print("Price:", room["price"])
+                    print("Location:", document_city)
+                    print()
+
+    except FileNotFoundError:
+        print("Error: JSON file not found.")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the maximum room price.")
+
+# Get user input for city name and the maximum price of the room
+try:
+    user_input_city = input("Enter the city name: ")
+    user_input_max_price = int(input("Enter the maximum price of the room: "))
+    print_hotels_below_price_and_city(user_input_city, user_input_max_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+ 
+
+            # Print for debugging
+            print("User Input City:", city)
+            print("Document City:", document_city)
+            print("Document Data:", document)
+
+ 
+import json
+
+def extract_city(location):
+    if isinstance(location, dict) and "city" in location:
+        return location["city"]
+    elif isinstance(location, str):
+        return location
+    return ""
+
+def print_hotels_below_price_and_city(city, max_price):
+    try:
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        processed_hotels = set()
+
+        for document in data:
+            room_data = document.get("Room", [])
+            document_city = extract_city(document.get("Location", ""))
+            
+            # Print for debugging
+            print("User Input City:", city)
+            print("Document City:", document_city)
+            print("Document Data:", document)
+
+            # Check if the city matches and any room has a price below or equal to the user input
+            if document_city.lower() == city.lower() and any(int(room.get("price", 0)) <= max_price for room in room_data):
+                hotel_name = document.get("name")
+                if hotel_name not in processed_hotels:
+                    processed_hotels.add(hotel_name)
+
+                    print("Hotel Name:", hotel_name)
+                    for room in room_data:
+                        if int(room.get("price", 0)) <= max_price:
+                            print("Room Type:", room["type"])
+                            print("Availability:", room["availability"])
+                            print("Price", room["price"])
+                    print("Location:", document_city)
+                    print()
+
+    except FileNotFoundError:
+        print("Error: JSON file not found.")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the maximum room price.")
+
+# Get user input for city name and the maximum price of the room
+try:
+    user_input_city = input("Enter the city name: ")
+    user_input_max_price = int(input("Enter the maximum price of the room: "))
+    print_hotels_below_price_and_city(user_input_city, user_input_max_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+ 
+import json
+
+def extract_city(location):
+    if isinstance(location, dict) and "city" in location:
+        return location["city"]
+    elif isinstance(location, str):
+        return location
+    return ""
+
+def print_hotels_below_price_and_city(city, max_price):
+    try:
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        processed_hotels = set()
+
+        for document in data:
+            room_data = document.get("Room", [])
+            document_city = extract_city(document.get("Location", ""))
+            
+            # Check if the city matches and any room has a price below or equal to the user input
+            if document_city.lower() == city.lower() and any(int(room.get("price", 0)) <= max_price for room in room_data):
+                hotel_name = document.get("name")
+                if hotel_name not in processed_hotels:
+                    processed_hotels.add(hotel_name)
+
+                    print("Hotel Name:", hotel_name)
+                    for room in room_data:
+                        if int(room.get("price", 0)) <= max_price:
+                            print("Room Type:", room["type"])
+                            print("Availability:", room["availability"])
+                    print("Location:", document_city)
+                    print()
+
+    except FileNotFoundError:
+        print("Error: JSON file not found.")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the maximum room price.")
+
+# Get user input for city name and the maximum price of the room
+try:
+    user_input_city = input("Enter the city name: ")
+    user_input_max_price = int(input("Enter the maximum price of the room: "))
+    print_hotels_below_price_and_city(user_input_city, user_input_max_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+ 
+import json
+
+def print_hotels_below_price_and_city(city, max_price):
+    try:
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        processed_hotels = set()
+
+        for document in data:
+            room_data = document.get("Room", [])
+            
+            # Check if the city matches and any room has a price below or equal to the user input
+            if document.get("Location", "").lower() == city.lower() and any(int(room.get("price", 0)) <= max_price for room in room_data):
+                hotel_name = document.get("name")
+                if hotel_name not in processed_hotels:
+                    processed_hotels.add(hotel_name)
+
+                    print("Hotel Name:", hotel_name)
+                    for room in room_data:
+                        if int(room.get("price", 0)) <= max_price:
+                            print("Room Type:", room["type"])
+                            print("Availability:", room["availability"])
+                    print("Location:", document.get("Location", "N/A"))
+                    print()
+
+    except FileNotFoundError:
+        print("Error: JSON file not found.")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the maximum room price.")
+
+# Get user input for city name and the maximum price of the room
+try:
+    user_input_city = input("Enter the city name: ")
+    user_input_max_price = int(input("Enter the maximum price of the room: "))
+    print_hotels_below_price_and_city(user_input_city, user_input_max_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+ 
+import json
+
+def print_hotels_below_price(max_price):
+    try:
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        processed_hotels = set()
+
+        for document in data:
+            room_data = document.get("Room", [])
+            if any(int(room.get("price", 0)) <= max_price for room in room_data):
+                hotel_name = document.get("name")
+                if hotel_name not in processed_hotels:
+                    processed_hotels.add(hotel_name)
+
+                    print("Hotel Name:", hotel_name)
+                    for room in room_data:
+                        if int(room.get("price", 0)) <= max_price:
+                            print("Room Type:", room["type"])
+                            print("Availability:", room["availability"])
+                    print("Location:", document.get("Location", "N/A"))
+                    print()
+
+    except FileNotFoundError:
+        print("Error: JSON file not found.")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the maximum room price.")
+
+# Get user input for the maximum price of the room
+try:
+    user_input_max_price = int(input("Enter the maximum price of the room: "))
+    print_hotels_below_price(user_input_max_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+ 
+import json
+
+def print_hotels_below_price(max_price):
+    try:
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        processed_hotels = set()
+
+        for document in data:
+            room_data = document.get("Room", [])
+            if any(room.get("price", 0) <= max_price for room in room_data):
+                hotel_name = document.get("name")
+                if hotel_name not in processed_hotels:
+                    processed_hotels.add(hotel_name)
+
+                    print("Hotel Name:", hotel_name)
+                    for room in room_data:
+                        if room.get("price", 0) <= max_price:
+                            print("Room Type:", room["type"])
+                            print("Availability:", room["availability"])
+                    print("Location:", document.get("Location", "N/A"))
+                    print()
+
+    except FileNotFoundError:
+        print("Error: JSON file not found.")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the maximum room price.")
+
+# Get user input for the maximum price of the room
+try:
+    user_input_max_price = int(input("Enter the maximum price of the room: "))
+    print_hotels_below_price(user_input_max_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+ 
+import json
+from pymongo import MongoClient
+from pymongo.errors import PyMongoError
+
+def print_hotels_below_price(max_price):
+    try:
+        client = MongoClient("mongodb://localhost:27017")
+        db = client["Hotel_Detail"]
+        collection = db["Data_Hotel"]
+
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        collection.insert_many(data)
+        query = {"Room": {"$elemMatch": {"price": {"$lte": max_price}}}}
+        processed_hotels = set()
+
+        matching_documents = collection.find(query)
+
+        for document in matching_documents:
+            hotel_name = document.get("name")
+            if hotel_name not in processed_hotels:
+                processed_hotels.add(hotel_name)
+
+                print("Hotel Name:", hotel_name)
+                for room in document["Room"]:
+                    print("Room Type:", room["type"])
+                    print("Availability:", room["availability"])
+                print("Location:", document.get("Location", "N/A"))
+                print()
+
+    except FileNotFoundError:
+        print("Error: JSON file not found.")
+
+    except PyMongoError as e:
+        print(f"MongoDB error: {e}")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the maximum room price.")
+
+    finally:
+        if 'client' in locals() and client is not None:
+            client.close()
+
+try:
+    user_input_max_price = int(input("Enter the maximum price of the room: "))
+    print_hotels_below_price(user_input_max_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+
+ 
+import json
+from pymongo import MongoClient
+from pymongo.errors import PyMongoError, ConnectionError
+
+def print_hotels_below_price(max_price):
+    try:
+        client = MongoClient("mongodb://localhost:27017")
+        db = client["Hotel_Detail"]
+        collection = db["Data_Hotel"]
+
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        collection.insert_many(data)
+        query = {"Room": {"$elemMatch": {"price": {"$lte": max_price}}}}
+        processed_hotels = set()
+
+        matching_documents = collection.find(query)
+
+        for document in matching_documents:
+            hotel_name = document.get("name")
+            if hotel_name not in processed_hotels:
+                processed_hotels.add(hotel_name)
+
+                print("Hotel Name:", hotel_name)
+                for room in document["Room"]:
+                    print("Room Type:", room["type"])
+                    print("Availability:", room["availability"])
+                print("Location:", document.get("Location", "N/A"))
+                print()
+
+    except FileNotFoundError:
+        print("Error: JSON file not found.")
+
+    except (PyMongoError, ConnectionError) as e:
+        print(f"MongoDB error: {e}")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the maximum room price.")
+
+    finally:
+        if 'client' in locals() and client is not None:
+            client.close()
+
+try:
+    user_input_max_price = int(input("Enter the maximum price of the room: "))
+    print_hotels_below_price(user_input_max_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+ 
+import json
+from pymongo import MongoClient
+from pymongo.errors import PyMongoError
+
+def print_hotels_below_price(max_price):
+    try:
+        client = MongoClient("mongodb://localhost:27017")
+        db = client["Hotel_Detail"]
+        collection = db["Data_Hotel"]
+
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        collection.insert_many(data)
+        query = {"Room": {"$elemMatch": {"price": {"$lte": str(max_price)}}}}
+        processed_hotels = set()
+
+        matching_documents = collection.find(query)
+
+        for document in matching_documents:
+            hotel_name = document.get("name")
+            if hotel_name not in processed_hotels:
+                processed_hotels.add(hotel_name)
+
+                print("Hotel Name:", hotel_name)
+                for room in document["Room"]:
+                    print("Room Type:", room["type"])
+                    print("Availability:", room["availability"])
+                print("Location:", document.get("Location", "N/A"))
+                print()
+
+    except PyMongoError as e:
+        print(f"MongoDB error: {e}")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the maximum room price.")
+
+    finally:
+        if 'client' in locals() and client is not None:
+            client.close()
+
+try:
+    user_input_max_price = int(input("Enter the maximum price of the room: "))
+    print_hotels_below_price(user_input_max_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+ 
+The lalit Ashok Bengluru
+ 
+4799
+ 
+
+            # Check if the hotel has already been processed
+ 
+
+        # Retrieve matching documents
+ 
+
+
+        # Set to keep track of processed hotels
+ 
+
+
+        # Convert the user input price to a string to match the data type in MongoDB
+ 
+
+        # Insert data into the MongoDB collection
+ 
+
+        # Load data from the JSON file
+ 
+  # Connect to MongoDB
+ 
+[
+    {
+        "name": "Reliance Hotel",
+        "Location": {
+            "City": "Bokaro Steel City",
+            "State": "Jharkhand",
+            "Country": "India"
+        },
+        "Room": [
+            {
+                "type": "Standard",
+                "price": "2000",
+                "availability": "25"
+            },
+            {
+                "type": "Deluxe",
+                "price": "1500",
+                "availability": "30"
+            }
+        ]
+    }
+]
+ 
+import json
+from pymongo import MongoClient
+from pymongo.errors import PyMongoError
+
+def print_hotel_details(price):
+    try:
+        # Connect to MongoDB
+        client = MongoClient("mongodb://localhost:27017")
+        db = client["Hotel_Detail"]
+        collection = db["Data_Hotel"]
+
+        # Load data from the JSON file
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        # Insert data into the MongoDB collection
+        collection.insert_many(data)
+
+        # Convert the user input price to a string to match the data type in MongoDB
+        query = {"Room": {"$elemMatch": {"price": str(price)}}}
+
+        # Retrieve matching documents
+        matching_documents = collection.find(query)
+
+        for document in matching_documents:
+            print("Hotel Name:", document.get("name"))
+            for room in document["Room"]:
+                print("Room Type:", room["type"])
+                print("Availability:", room["availability"])
+                print("Location:", document.get("Location", "N/A"))
+                print()
+
+    except PyMongoError as e:
+        print(f"MongoDB error: {e}")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the room price.")
+
+    finally:
+        if 'client' in locals() and client is not None:
+            client.close()
+
+try:
+    user_input_price = int(input("Enter the price of the room: "))
+    print_hotel_details(user_input_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+ 
+import json
+from pymongo import MongoClient
+from pymongo.errors import PyMongoError
+
+def print_hotel_details(price):
+    try:
+        # Connect to MongoDB
+        client = MongoClient("mongodb://localhost:27017")
+        db = client["Hotel_Detail"]
+        collection = db["Data_Hotel"]
+
+        # Load data from the JSON file
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        # Insert data into the MongoDB collection
+        collection.insert_many(data)
+
+        # Convert the user input price to a string to match the data type in MongoDB
+        query = {"Room.price": str(price)}
+
+        # Retrieve matching documents
+        matching_documents = collection.find(query)
+
+        for document in matching_documents:
+            print("Hotel Name:", document.get("name"))
+            print("Room Type:", document["Room"][0]["type"])
+            print("Availability:", document["Room"][0]["availability"])
+            print("Location:", document.get("Location", "N/A"))  # Corrected field name
+            print()
+
+    except PyMongoError as e:
+        print(f"MongoDB error: {e}")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the room price.")
+
+    finally:
+        if 'client' in locals() and client is not None:
+            client.close()
+
+try:
+    user_input_price = int(input("Enter the price of the room: "))
+    print_hotel_details(user_input_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+ 
+[
+    {
+      "name": "Reliance Hotel",
+      "Location": {
+        "City": "Bokaro Steel City",
+        "State": "Jharkhand",
+        "Country": "India"
+      },
+      "Room": [
+        {
+          "type": "Standard",
+          "price": "2000",
+          "availability": "25"
+        }
+      ]
+    }
+  ]
+  [
+    {
+      "name": "Reliance Hotel",
+      "Location": {
+        "City": "Bokaro Steel City",
+        "State": "Jharkhand",
+        "Country": "India"
+      },
+      "Room": [
+        {
+          "type": "Deluxe",
+          "price": "1500",
+          "availability": "30"
+        }
+      ]
+    }
+  ]
+  
+ 
+{
+          "type": "Deluxe",
+          "price": "1500",
+          "availability": "30"
+        }
+ 
+{
+          "type": "Standard",
+          "price": "2000",
+          "availability": "25"
+        },
+ 
+{
+    "_id": {
+      "$oid": "65789450adc9481c1e3e5723"
+    },
+    "name": "Hotel XYZ",
+    "Location": {
+      "City": "City ABC",
+      "State": "State XYZ",
+      "Country": "Country PQR"
+    },
+    "Room": [
+      {
+        "type": "Standard",
+        "price": "3000",
+        "availability": "20"
+      },
+      {
+        "type": "Deluxe",
+        "price": "2500",
+        "availability": "25"
+      }
+    ]
+  }
+ 
+import json
+from pymongo import MongoClient
+from pymongo.errors import PyMongoError
+
+def print_hotel_details(price):
+    try:
+        # Connect to MongoDB
+        client = MongoClient("mongodb://localhost:27017")
+        db = client["Hotel_Detail"]
+        collection = db["Data_Hotel"]
+
+        # Load data from the JSON file
+        with open(r'C:\Users\Kundan\Downloads\New folder (2)\data.json') as json_file:
+            data = json.load(json_file)
+
+        # Convert the user input price to a string to match the data type in MongoDB
+        query = {"Room.price": str(price)}
+
+        # Insert the loaded data into the MongoDB collection
+        collection.insert_many(data)
+
+        # Retrieve matching documents
+        matching_documents = collection.find(query)
+
+        for document in matching_documents:
+            print("Hotel Name:", document.get("name"))
+            print("Room Type:", document["Room"][0]["type"])
+            print("Availability:", document["Room"][0]["availability"])
+            print("Location:", document.get("Location", "N/A"))  # Corrected field name
+            print()
+
+    except PyMongoError as e:
+        print(f"MongoDB error: {e}")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for t
+ 
+import pymongo
+from pymongo.errors import PyMongoError
+
+def print_hotel_details(price):
+    try:
+        client = pymongo.MongoClient("mongodb://localhost:27017")
+        db = client["Hotel_Detail"]
+        collection = db["Data_Hotel"]
+    
+        # Convert the user input price to a string to match the data type in MongoDB
+        query = {"rooms.price": str(price)}
+
+        matching_documents = collection.find(query)
+        
+        for document in matching_documents:
+            print("Hotel Name:", document.get("name"))
+            print("Room Type:", document["rooms"][0]["type"])
+            print("Availability:", document["rooms"][0]["availability"])
+            print("Location:", document.get("Location", "N/A"))  # Corrected field name
+            print()
+        
+    except PyMongoError as e:
+        print(f"MongoDB error: {e}")
+
+    except ValueError:
+        print("Invalid input. Please enter a valid integer for the room price.")
+
+    finally:
+        if 'client' in locals() and client is not None:
+            client.close()
+
+try:
+    user_input_price = int(input("Enter the price of the room: "))
+    print_hotel_details(user_input_price)
+
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+ 

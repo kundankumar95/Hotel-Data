@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #person1, #person2 {
+            flex: 1;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        #person1 {
+            background-color: #e6f7ff;
+        }
+
+        #person2 {
+            background-color: #ccffcc;
+        }
+
+        #inputForm {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        #messageInput {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        #sendButton {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="person1">
+        <h2>Person 1</h2>
+        <div id="person1Chat"></div>
+        <div id="inputForm">
+            <input type="text" id="messageInput1" placeholder="Type your message...">
+            <button id="sendButton" onclick="sendMessage(1)">Send</button>
+        </div>
+    </div>
+
+    <div id="person2">
+        <h2>Person 2</h2>
+        <div id="person2Chat"></div>
+        <div id="inputForm">
+            <input type="text" id="messageInput2" placeholder="Type your message...">
+            <button id="sendButton" onclick="sendMessage(2)">Send</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://127.0.0.1:5000');
+
+        function sendMessage(person) {
+            var messageInput = document.getElementById('messageInput' + person);
+            var message = messageInput.value;
+
+            if (message.trim() !== '') {
+                var chatDiv = document.getElementById('person' + person + 'Chat');
+                chatDiv.innerHTML += '<p class="message">Person ' + person + ': ' + message + '</p>';
+                messageInput.value = '';
+
+                // Emit the message to the server
+                socket.emit('message', {'person': person, 'message': message, 'sender': person});
+            }
+        }
+
+        // Listen for incoming messages
+        socket.on('message', function(data) {
+            var chatDiv = document.getElementById('person' + data.person + 'Chat');
+            chatDiv.innerHTML += '<p class="message">Person ' + data.sender + ': ' + data.message + '</p>';
+        });
+    </script>
+</body>
+</html>
+
+
+
